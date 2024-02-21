@@ -1,0 +1,17 @@
+# CMake
+cmake-build-*/
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+.idea/
+*.iml
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Operator-sdk
+bin/*
+cover.out

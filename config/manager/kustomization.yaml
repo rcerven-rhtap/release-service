@@ -1,0 +1,21 @@
+resources:
+- manager.yaml
+- network_policy.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+- name: manager-config
+  files:
+  - controller_manager_config.yaml
+- name: manager-properties
+  envs:
+    - manager.properties
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+  - name: controller
+    newName: quay.io/redhat-appstudio/release-service
+    newTag: next

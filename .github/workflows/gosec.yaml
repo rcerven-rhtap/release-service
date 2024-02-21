@@ -1,0 +1,41 @@
+---
+name: Go Test on Pull Requests
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - '**.go'
+  workflow_dispatch:
+jobs:
+  gosec:
+    name: Check GO security
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Run Gosec Security Scanner
+        id: gosec
+        uses: securego/gosec@master
+        with:
+          # we let the report trigger a failure using the GitHub Security features.
+          args: -exclude-generated -fmt sarif -out results.sarif ./...
+        env:
+          GOROOT: ""
+        continue-on-error: true
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+      - name: Check gosec result
+        run: |
+          if [ "${{ steps.gosec.outcome }}" != "success" ]
+          then
+            echo "Gosec failed. The errors and warnings should be displayed in the PR."
+            exit 1
+          fi
